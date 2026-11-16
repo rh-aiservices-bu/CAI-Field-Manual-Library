@@ -1,0 +1,43 @@
+name: Refresh manual submodules
+
+# Polls every manual repo for new commits on its default branch and, if any
+# moved, commits the updated submodule pointers back to this repo. That push
+# to main then triggers github-pages.yaml, which rebuilds and redeploys.
+# No manual repo needs any workflow of its own for this to work.
+
+on:
+  schedule:
+    - cron: "0 * * * *" # hourly; adjust to taste
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-submodules
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out aggregator with manual submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Update every submodule to its latest upstream commit
+        run: git submodule update --remote --merge
+
+      - name: Commit and push updated submodule pointers, if any
+        run: |
+          if git diff --quiet -- external; then
+            echo "No manual repo has new commits. Nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add external
+          git commit -m "chore: refresh manual submodules to latest"
+          git push

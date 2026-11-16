@@ -1,0 +1,56 @@
+{{- /* Scratch section (not an oink registry type): each item becomes a
+     leatherbound-look book standing on a shelf, linking into its field
+     manual. Width is banded by the manual's own top-level heading count
+     (its direct child sections/pages -- the same number the manual's own
+     landing cards show), not a deep recursive page count, so one big manual
+     doesn't dwarf a small one. Cover hue is spaced by the golden angle per
+     item index, so colors stay distinct without needing real randomness
+     (and without a hydration flash on a static page). */ -}}
+{{- $page := .page -}}
+{{- $data := .data -}}
+{{- $id := .id -}}
+{{- $items := $data.items | default slice -}}
+<section id="{{ $id }}" class="td-landing-section td-bookshelf-section" aria-labelledby="{{ $id }}-title">
+  <div class="td-site-container">
+    {{- with $data.eyebrow }}
+    <header class="td-landing-section__head">
+      <p class="td-landing-section__eyebrow"><span>{{ . }}</span><i aria-hidden="true"></i></p>
+      {{- with $data.title }}<h2 id="{{ $id }}-title">{{ . }}</h2>{{ end }}
+    </header>
+    {{- end }}
+    <div class="td-bookshelf">
+      {{- range $index, $item := $items }}
+        {{- $count := 1 -}}
+        {{- with $page.Site.GetPage $item.url }}{{ $count = len (union .RegularPages .Sections) }}{{ end -}}
+        {{- $width := 240 -}}
+        {{- if le $count 2 }}{{ $width = 120 }}
+        {{- else if le $count 5 }}{{ $width = 150 }}
+        {{- else if le $count 9 }}{{ $width = 180 }}
+        {{- else if le $count 14 }}{{ $width = 210 }}
+        {{- else }}{{ $width = 240 }}
+        {{- end -}}
+        {{- $hue := mod (mul $index 137) 360 -}}
+        <a class="td-bookshelf__book" href="{{ $item.url | relLangURL }}" style="width: {{ $width }}px; background-color: hsl({{ $hue }}, 40%, 22%);">
+          <span class="td-bookshelf__band"></span>
+          <span class="td-bookshelf__band td-bookshelf__band--tight"></span>
+          <span class="td-bookshelf__plate">
+            <span class="td-bookshelf__title">{{ $item.title }}</span>
+          </span>
+          {{- with $item.subtitle }}
+          <span class="td-bookshelf__plate td-bookshelf__plate--small">
+            <span class="td-bookshelf__imprint">{{ . }}</span>
+          </span>
+          {{- end }}
+          <span class="td-bookshelf__band"></span>
+          <span class="td-bookshelf__spacer"></span>
+          {{- with $item.icon }}
+          <span class="td-bookshelf__emblem"><i class="{{ . }}" aria-hidden="true"></i></span>
+          {{- end }}
+          <span class="td-bookshelf__band"></span>
+          <span class="td-bookshelf__band td-bookshelf__band--tight"></span>
+        </a>
+      {{- end }}
+    </div>
+    <div class="td-bookshelf__shelf" aria-hidden="true"></div>
+  </div>
+</section>

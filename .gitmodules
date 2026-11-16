@@ -1,0 +1,9 @@
+[submodule "external/manual-maas"]
+	path = external/manual-maas
+	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-MaaS.git
+[submodule "external/manual-3-migration"]
+	path = external/manual-3-migration
+	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-Migration-2-3.git
+[submodule "external/manual-hello-world"]
+	path = external/manual-hello-world
+	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-prototype.git
