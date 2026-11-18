@@ -219,3 +219,5 @@ module:
       target: content/guide
     - source: external/manual-maas/static/visualizers
       target: static/visualizers
+    - source: external/manual-maas/assets/images
+      target: assets/images
