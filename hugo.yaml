@@ -215,5 +215,7 @@ module:
     # mounted as-is, unmodified.
     - source: external/manual-3-migration/content/rhoai-2-25-to-3-5
       target: content/rhoai-2-25-to-3-5
-    - source: external/manual-maas/content/field-manual/hello-world
-      target: content/manual-maas
+    - source: external/manual-maas/content/guide
+      target: content/guide
+    - source: external/manual-maas/static/visualizers
+      target: static/visualizers

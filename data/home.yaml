@@ -26,7 +26,7 @@ bookshelf:
       icon: fa-solid fa-route
     - title: MaaS
       subtitle: CAI
-      url: manual-maas/
+      url: guide/
       icon: fa-solid fa-cloud
 
 cards:
@@ -43,9 +43,9 @@ cards:
       icon: fa-solid fa-route
       url: rhoai-2-25-to-3-5/
     - title: MaaS
-      desc: "Pulled in from the CAI-Field-Manual-MaaS repo via git submodule, without a local clone of its own."
+      desc: "Deploy Red Hat OpenShift AI Models-as-a-Service — Kustomize manifests with status gates, automation scripts, and reference deep-dives. From the migrate-maas-guide branch of CAI-Field-Manual-MaaS."
       icon: fa-solid fa-cloud
-      url: manual-maas/
+      url: guide/
     - title: Why this approach
       desc: "What the prototype copies from the MaaS guide, changes on purpose, and why — for the team walkthrough."
       icon: fa-solid fa-lightbulb
