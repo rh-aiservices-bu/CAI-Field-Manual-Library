@@ -1,4 +1,21 @@
 title: CAI Field Manual
+cascade:
+  # Every branch of the tree renders expanded on every page: both sidebar tree
+  # walkers honor sidebar_expanded as a per-section force-expand, and Home's
+  # cascade sets it for the whole site. Without it the walkers render each
+  # page's tree with only the active path open.
+  - sidebar_expanded: true
+  # Every top-level section (kind: section, path: /*, i.e. one path segment
+  # below Home) becomes its own sidebar root. This is what segregates each
+  # manual's sidebar from the others ("book" behavior) — scoped at the
+  # aggregator so manual repos never need `sidebar_root_for: self` in their
+  # own content. The path glob is one level deep on purpose: a manual with
+  # its own nested sections must not fragment into separate roots.
+  - target:
+      kind: section
+      path: /*
+    sidebar_root_for: self
+
 baseURL: https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/
 defaultContentLanguage: en
 disableLanguages: [zh, fr]
@@ -75,14 +92,14 @@ params:
     section_index: cards
     blog_index: cards
     sidebar_menu_foldable: true
-    # Multi-book demo: content/_index.md's cascade sets `sidebar_root_for:
-    # self` on every top-level section (scoped via _target so it doesn't
-    # reach into a manual's own nested sections), so each manual's sidebar is
-    # scoped to itself and never shows another manual -- no manual repo needs
-    # this front matter itself. docs_sidebar_root stays at the theme default
-    # ("section") and sidebar_root_menu is on, so the root switcher groups
-    # every book as a dedicated top-level picker, without nesting their URLs
-    # under a shared parent.
+    # `hugo.yaml`'s top-level `cascade:` sets `sidebar_root_for: self` on
+    # every top-level section (scoped via `target: {kind: section, path: /*}`
+    # so it doesn't reach into a manual's own nested sections), so each
+    # manual's sidebar is scoped to itself and never shows another manual --
+    # no manual repo needs this front matter itself. `docs_sidebar_root`
+    # stays at the theme default ("section") and `sidebar_root_menu` is on,
+    # so the root switcher groups every book as a dedicated top-level
+    # picker, without nesting their URLs under a shared parent.
     sidebar_root_menu: true
     # Numbered workshop-chrome nav (B): CSS counters give the top level "N."
     # and its children "N.M", so icon rows are gone from the tree --
@@ -187,9 +204,12 @@ module:
     extended: true
     min: 0.168.0
   mounts:
-    # Standard defaults — required once any mounts are declared explicitly.
-    - source: content
-      target: content
+    # Standard defaults — required once any explicit mounts are declared.
+    # `content` is intentionally not mounted: the aggregator owns no content
+    # (hugo.yaml's top-level `cascade:` replaces the old content/_index.md
+    # book-segregation lever); every page comes from a submodule mount below.
+    # `archetypes` is also unused — manual repos carry their own — so it is
+    # omitted alongside `content`.
     - source: static
       target: static
     - source: layouts
@@ -198,8 +218,6 @@ module:
       target: data
     - source: assets
       target: assets
-    - source: archetypes
-      target: archetypes
     # Pull each manual repo's own content straight from its git submodule —
     # the aggregator never copies or owns this content. Each manual mounts as
     # its own top-level section ("book"), not nested under a shared parent,

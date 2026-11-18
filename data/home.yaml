@@ -2,10 +2,11 @@ sections: [hero, { key: bookshelf, partial: "landing/sections/bookshelf.html" },
 
 hero:
   align: center
-  eyebrow: prototype
+  eyebrow: field manuals
   title_lines:
     - words: [{ text: The CAI Field Manual. }]
     - words: [{ text: Where the work happens. }]
+    - words: [{ text: "[red.ht/caifm](https://red.ht/caifm)" }]
   lead: A working skeleton for the field-manual example site — playbooks, procedures, and reference material that survives field conditions.
 
 # Scratch: bookshelf-style nav buttons, one book per field manual. Book width
@@ -35,7 +36,7 @@ cards:
   columns: 2
   items:
     - title: Hello World Field Manual
-      desc: "The blank field-manual skeleton: duplicate it and fill in your own field procedures. Pulled in from CAI-Field-Manual-prototype via git submodule."
+      desc: "The blank field-manual skeleton: duplicate it and fill in your own field procedures. From CAI-Field-Manual-Hello-World via git submodule."
       icon: fa-solid fa-seedling
       url: hello-world/
     - title: RHOAI 2.25 → 3.5 migration
@@ -46,22 +47,18 @@ cards:
       desc: "Deploy Red Hat OpenShift AI Models-as-a-Service — Kustomize manifests with status gates, automation scripts, and reference deep-dives. From the migrate-maas-guide branch of CAI-Field-Manual-MaaS."
       icon: fa-solid fa-cloud
       url: guide/
-    - title: Why this approach
-      desc: "What the prototype copies from the MaaS guide, changes on purpose, and why — for the team walkthrough."
-      icon: fa-solid fa-lightbulb
-      url: why-this-approach/
-    - title: Writing the field manual
-      desc: "The doctrine for authors — the six conventions behind every manual here, annotated examples, and the walkthrough for a first manual."
+    - title: How to write a manual
+      desc: "The six conventions every manual follows and the walkthrough for writing your first one — in the Hello World manual."
       icon: fa-solid fa-pen-ruler
-      url: writing-the-field-manual/
-    - title: Contribute
-      desc: "Edit manuals under content/field-manual/ and the landing copy in data/home.yaml; the dev server hot-reloads."
+      url: hello-world/what-is-a-field-manual/writing-the-field-manual/
+    - title: What is a field manual
+      desc: "Who writes these manuals, what they contain, and how to read them as a human or an AI agent."
+      icon: fa-solid fa-book-open
+      url: hello-world/what-is-a-field-manual/
+    - title: Editing any manual
+      desc: "Clone, render locally, and pass the publication gate — the shared workflow for every field manual."
       icon: fa-solid fa-pen-nib
-      url: writing-the-field-manual/write-a-manual/
-    - title: Potential improvements
-      desc: "What the field manual does not use yet — oink 1.4.0 capabilities left on the table, each illustrated on the page."
-      icon: fa-solid fa-arrow-up-right-dots
-      url: potential-improvements/
+      url: hello-world/editing/
 
 cta:
   title: "We want your feedback."
@@ -92,6 +89,6 @@ faq:
   title: Questions people actually ask
   items:
     - question: Why does every command show its expected output?
-      answer: A command whose output nobody checks is a guess about the system's state. The status gate turns "ran it" into "confirmed it" — see [Conventions](writing-the-field-manual/conventions/).
+      answer: A command whose output nobody checks is a guess about the system's state. The status gate turns "ran it" into "confirmed it" — see the Hello World manual's <a href="hello-world/what-is-a-field-manual/definition/">Definition</a> and <a href="hello-world/what-is-a-field-manual/writing-the-field-manual/">Writing the field manual</a> for the full conventions.
     - question: Why do versions and ops modes live in a selector instead of separate pages?
       answer: Divergence is permanent; separate pages fork the manual and drift apart. The selector filters, the choice persists, and the markdown output carries every variant labeled for agents.

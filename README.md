@@ -12,7 +12,7 @@ Built with [Hugo](https://gohugo.io/) and the [OINK](https://oink.pgsty.com/) th
 
 - [Hello World](https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/hello-world/) — the blank field-manual skeleton with six bundles.
 - [RHOAI 2.25 → 3.5 migration](https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/rhoai-2-25-to-3-5/) — in-place OpenShift AI 2.25.10+ to 3.5, one page per phase.
-- [MaaS](https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/manual-maas/) — model-as-a-service field manual.
+- [MaaS](https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/guide/) — model-as-a-service field manual.
 
 Each book is reachable via the **bookshelf** landing section (book width banded by top-level heading count), the landing cards, and its own sidebar.
 
@@ -31,10 +31,9 @@ Each book is reachable via the **bookshelf** landing section (book width banded 
 
 ## Where things live
 
-- `hugo.yaml` — site identity (`title`, `baseURL`, `github_repo`), the five variant axes + two customize fields (`user`, `cluster`), and the three submodule mounts (`hello-world`, `rhoai-2-25-to-3-5`, `manual-maas`). Chrome defaults (`logo`, `offline_search`, `copyright`, `footer_center_info`, `ui` incl. `docs_section`) live in the Shell module's `hugo.yaml` and are deep-merged; site values win on conflict.
-- `content/_index.md` — home page cascade: `sidebar_expanded: true` site-wide and `sidebar_root_for: self` on every top-level section (`path: /*`) — the aggregator's book-segregation lever that lets each manual's sidebar stay scoped to itself.
-- `data/home.yaml` — landing page composition: `hero`, `bookshelf` (three books, URLs `hello-world/`, `rhoai-2-25-to-3-5/`, `manual-maas/`), `timeline`, `cards`, `faq`, `cta`.
-- `content/why-this-approach.md` + `content/writing-the-field-manual/` — Library-owned content.
+- `hugo.yaml` — site identity (`title`, `baseURL`, `github_repo`), the top-level `cascade:` book-segregation lever (`sidebar_expanded: true` site-wide + `sidebar_root_for: self` on every top-level section `path: /*`), the five variant axes + two customize fields (`user`, `cluster`), and the three submodule mounts (`hello-world`, `rhoai-2-25-to-3-5`, `guide`). Chrome defaults (`logo`, `offline_search`, `copyright`, `footer_center_info`, `ui` incl. `docs_section`) live in the Shell module's `hugo.yaml` and are deep-merged; site values win on conflict.
+- `content/` — intentionally absent. The aggregator owns no pages; every page is mounted from a manual repo via `hugo.yaml:module.mounts`. The book-segregation lever (`sidebar_expanded: true` + `sidebar_root_for: self` on every top-level section `path: /*`) lives in `hugo.yaml`'s top-level `cascade:`, not in a `content/_index.md`.
+- `data/home.yaml` — landing page composition: `hero`, `bookshelf` (three books, URLs `hello-world/`, `rhoai-2-25-to-3-5/`, `guide/`), `timeline`, `cards`, `faq`, `cta`. Every card URL must point into a mount; doctrine links (definition, conventions, walkthrough) point into `hello-world/what-is-a-field-manual/`.
 - `external/` — three git submodules, each a manual repo (read-only here; edit in their own repos): `manual-hello-world` → `CAI-Field-Manual-Hello-World`, `manual-3-migration` → `CAI-Field-Manual-Migration-2-3`, `manual-maas` → `CAI-Field-Manual-MaaS`.
 - `layouts/_partials/landing/sections/bookshelf.html` + `static/css/bookshelf.css` — the only chrome that stays Library-owned (the bookshelf landing section). `layouts/_partials/hooks/head-end.html` is Shell's copy plus the bookshelf `<link>` (tagged `TODO(Shell)`).
 - Layouts, assets, static, and scripts otherwise: live in the Shell module (`CAI-Field-Manual-Shell`). See that repo's README for what it exports.
@@ -110,10 +109,14 @@ In CI the gate runs via the Shell checkout:
 shell/scripts/publication-gate.sh --baseURL "https://example.invalid/docs/"
 ```
 
-Optional contract check (needs sibling Shell clone + `public/` from the production build):
+Optional contract check (`check-contracts.sh`) validates dual-consumption
+promises against a site's own `content/`. The Library owns no `content/`
+(deleted) so `public/` has no `content/**` counterpart and the check's
+vacuous-pass guard (`0 manual pages matched → FAILED`) is expected.
+Run it in the content repos instead (after their production build):
 
 ```sh
-sh ../CAI-Field-Manual-Shell/scripts/check-contracts.sh
+(cd ../CAI-Field-Manual-Hello-World && hugo --cleanDestinationDir --gc --minify --environment production && sh ../CAI-Field-Manual-Shell/scripts/check-contracts.sh)
 ```
 
 Note: `--panicOnWarning` is intentionally not used. The pinned theme version still transpiles some SCSS with Hugo's LibSass path (deprecated in Hugo ≥ 0.153), which emits a WARNING; the gate asserts no unexpected WARNs beyond that one. The Shell module's `head-css.html` uses `transpiler: dartsass` so this warning is gone in builds via the Shell, but the filter stays for compatibility.
@@ -125,7 +128,7 @@ Note: `--panicOnWarning` is intentionally not used. The pinned theme version sti
 ## Report issues, propose changes
 
 - **Issues** — file a [GitHub Issue](https://github.com/rh-aiservices-bu/CAI-Field-Manual-Library/issues) with the page URL (or `content/` path) and what you hit.
-- **Changes** — PRs to `main` are welcome. Library-owned content lives in `content/_index.md` (cascade), `content/why-this-approach.md`, `content/writing-the-field-manual/`, and `data/home.yaml`. Mounted manuals are read-only here — edit in their own repos, then bump the submodule. Run the publication gate before opening a PR. Merges to `main` deploy automatically via GitHub Actions.
+- **Changes** — PRs to `main` are welcome. Library-owned infra lives in `hugo.yaml` (cascade, site config, mounts) and `data/home.yaml` (landing composition — every card URL must point into a mount); authored content lives **only** in manual repos — edit there, then bump the submodule. Run the publication gate before opening a PR. Merges to `main` deploy automatically via GitHub Actions.
 
 ## Disclaimers
 
