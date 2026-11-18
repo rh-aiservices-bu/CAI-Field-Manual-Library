@@ -189,15 +189,21 @@ code.td-customize-token {
 // icon rows (params.ui.sidebar_icon_policy: none). Numbers are ::before
 // content: not in copied text, titles, or search. Each ul resets its own
 // counter, so nesting is the DOM's, not a hardcoded chain; the mobile-only
-// Home row (d-md-none), divider heading rows, and td-shell-tree__list--0
-// (the lone per-manual sidebar_root_for: self wrapper, since sidebar-root.html
-// roots each manual at itself rather than Home) are excluded from counting,
-// so each manual's own title row stays unnumbered and its children start
-// fresh at "1" instead of "1.1".
+// Home row (d-md-none) and divider heading rows are excluded from counting
+// so the drawer, desktop, and any future sidebar_divider agree on numbers.
 // Top-level rows render semibold like the example's chapter titles.
 #td-section-nav {
-  .td-shell-tree__list:not(.td-shell-tree__list--0) {
+  .td-shell-tree__list {
     counter-reset: td-nav;
+  }
+
+  // Guard for the explicit-navigation tree only: when docs-sidebar-tree.html
+  // (data/docs_nav.json path) promotes a cover into a td-shell-tree__item--root
+  // row, suppress the outer counter so chapter numbering starts at 1. The content-tree
+  // walker (shell/sidebar-tree.html) no longer emits a ul--0/--root cover row
+  // for Home or self-root covers (children render at ul--1), so this guard is a no-op there.
+  & > .td-shell-tree__list:has(> .td-shell-tree__item--root) {
+    counter-reset: none;
   }
 
   .td-shell-tree__item:not(.d-md-none):not(.td-shell-tree__heading):not(.td-shell-tree__item--root) {
@@ -208,6 +214,14 @@ code.td-customize-token {
     }
   }
 
+  .td-shell-tree__item--root {
+    counter-increment: none;
+
+    & > .td-shell-tree__row > .td-shell-tree__link > span::before {
+      content: none;
+    }
+  }
+
   & > ul > .td-shell-tree__item:not(.d-md-none) > .td-shell-tree__row > .td-shell-tree__link {
     font-weight: 600;
   }
@@ -215,4 +229,172 @@ code.td-customize-token {
   & > ul > .td-shell-tree__item:not(.d-md-none) > .td-shell-tree__row > .td-shell-tree__link > span::before {
     font-weight: 600;
   }
+}
+
+// Landing timeline: the theme stylesheet gives each item a TWO-column grid
+// (6rem | 1fr, oink v1.4.0 assets/scss/td/_landing.scss:1938) but the theme's
+// timeline partial emits THREE children when the item has an icon (<i>,
+// <time>, <div>): <time> lands in column 2 and the desc <div> wraps into an
+// implicit row inside the 6rem column — the "scrunched to the left" render.
+// Fix in the sanctioned project stylesheet, desktop range only (the theme
+// re-collapses to one column under 561px): icon and date share the theme's
+// 6rem column, content starts where the theme's second column starts, so
+// the 7.5rem rail, the dot, and the text alignment keep the theme's geometry.
+@media (min-width: 561px) {
+  .td-landing-timeline li {
+    grid-template-columns: 6rem minmax(0, 1fr);
+  }
+
+  .td-landing-timeline li > i {
+    grid-row: 1;
+    grid-column: 1;
+    justify-self: start;
+    align-self: center;
+  }
+
+  .td-landing-timeline li > time {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: center;
+    padding-inline-start: 1.75rem;
+  }
+
+  .td-landing-timeline li > div {
+    grid-row: 1;
+    grid-column: 2;
+  }
+}
+// Rendered content images: 1px visible outline so light screenshots do not
+// bleed into the page canvas. Scoped to .td-content so chrome marks (navbar
+// logo, sidebar brand, icons) are untouched. Uses --td-brand-line-strong
+// (not --bs-border-color) so the line stays visible across paper/slate/ink/
+// terminal and dark mode (paper 0.22 vs 0.12, ink/terminal 0.55). Gallery
+// images sit inside .td-gallery__item which already draws its own 1px border,
+// so suppress the inner outline there — the card supplies the frame.
+:where(.td-content) img {
+  border: 1px solid var(--td-brand-line-strong);
+}
+
+:where(.td-content) :is(.td-gallery__image, .td-gallery__item img, .td-gallery__link img) {
+  border: 0;
+}
+
+/* ── viz ────────────────────────────────────────────────────────────
+   Kept in Library: Hello-World's Flow visualizer needs these rules.
+   Shell has no visualizer shortcode; this block is appended here so
+   Library (which shadows Shell's _styles_project) does not lose it.
+   TODO(Shell): move visualizer shortcode + styles to Shell, then
+   delete this block and let _styles_project fall through to Shell.
+   Re-diff against Shell on module bumps; this file must stay in
+   sync with Shell's copy plus the viz delta below. */
+// follow the theme's light/dark tokens.
+.td-viz-embed {
+  position: relative;
+  margin: 1rem 0;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+
+  iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 5 / 3;
+    min-height: 720px;
+    border: 0;
+  }
+
+  &__fallback {
+    display: none;
+  }
+
+  &__expand {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+    &::before {
+      content: "⛶";
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    &:hover {
+      border-color: var(--bs-primary, var(--bs-border-color));
+    }
+  }
+
+  &--expanded {
+    position: fixed;
+    inset: 1rem;
+    z-index: 2050;
+    margin: 0;
+    border-radius: 0.75rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+
+    iframe {
+      aspect-ratio: auto;
+      height: 100%;
+    }
+
+    .td-viz-embed__expand::before {
+      content: "✕";
+    }
+  }
+}
+
+// Phone/tablet (<768px): the engine's fixed 380px panel swallows the
+// whole frame (workWidth = innerWidth - 380 goes negative), so the
+// embed would show only panel chrome -- swap to the new-tab link.
+@media (max-width: 767.98px) {
+  .td-viz-embed {
+    iframe,
+    .td-viz-embed__expand {
+      display: none;
+    }
+
+    &__fallback {
+      display: block;
+    }
+  }
+}
+
+// Expanded lightbox locks page scroll behind it.
+html.td-viz-lock {
+  overflow: hidden;
+}
+
+// Print output (_print pages): a lazy iframe never loads there, so the
+// embed collapses to a blank bordered box -- drop it entirely.
+@media print {
+  .td-viz-embed {
+    display: none;
+  }
+}
+
+// Flow page: bleed the visualizer into the article's flex gap.
+// The shortcode renders <div id="td-viz-embed-0" class="td-viz-embed"> — we add a
+// non-id class so the bleed doesn't outrank .td-viz-embed--expanded (expand is
+// the only readable view <1050px and the only view <768px where iframe is hidden).
+.td-shell-article:has(.td-viz-embed--flow) { overflow: visible; }
+.td-viz-embed--flow {
+  width: min(980px, calc(100vw - 340px));
+  max-width: none;
+  margin-left: calc(50% - min(490px, calc(50vw - 170px)));
+  aspect-ratio: auto;
+  min-height: 640px;
+  border: 0;
+  box-shadow: 0 1px 0 var(--bs-border-color);
 }

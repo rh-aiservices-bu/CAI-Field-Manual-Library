@@ -67,7 +67,7 @@ cta:
   title: "We want your feedback."
   text: "Report issues here"
   label: Github Issues
-  url: https://github.com/rh-aiservices-bu/CAI-Field-Manual-prototype/issues
+  url: https://github.com/rh-aiservices-bu/CAI-Field-Manual-Library/issues
   style: primary
 
 timeline:

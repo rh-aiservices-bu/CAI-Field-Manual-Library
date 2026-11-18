@@ -6,4 +6,4 @@
 	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-Migration-2-3.git
 [submodule "external/manual-hello-world"]
 	path = external/manual-hello-world
-	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-prototype.git
+	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-Hello-World.git

@@ -1,5 +1,5 @@
 title: CAI Field Manual
-baseURL: https://rh-aiservices-bu.github.io/CAI-Field-Manual-prototype/
+baseURL: https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/
 defaultContentLanguage: en
 disableLanguages: [zh, fr]
 enableGitInfo: true
@@ -55,10 +55,10 @@ outputs:
 
 params:
   # Red Hat CAI Team lockup (fedora + divider + wordmark); sized for the
-  # 4.3:1 aspect in assets/scss/_styles_project.scss. Ink follows the site
+  # 4.3:1 aspect in the Shell module's assets/scss/_styles_project.scss. Ink follows the site
   # theme toggle via the SVG's own prefers-color-scheme query.
   logo: icons/logo-rh-cai.svg
-  github_repo: https://github.com/rh-aiservices-bu/CAI-Field-Manual-prototype
+  github_repo: https://github.com/rh-aiservices-bu/CAI-Field-Manual-Library
   github_branch: main
   offline_search: true
   copyright:
@@ -69,7 +69,7 @@ params:
     preset: paper
     preset_menu: [paper, slate, ink, terminal]
     # Wordmark follows each preset's UI face (var(--td-ui-font-family))
-    # via the :root override in assets/scss/_styles_project.scss, so a
+    # via the :root override in the Shell module's assets/scss/_styles_project.scss, so a
     # Slate/Ink/Terminal reader never sees a foreign face in the brand row.
     dark_mode: true
     section_index: cards
@@ -170,20 +170,19 @@ params:
     - { id: user, label: Your name, default: guest }
     - { id: cluster, label: Cluster, default: .ocp.abcd.sandbox1234.opentlc.com }
 
-# Site header navigation. oink renders .Site.Menus.main in the navbar center
-# zone and the home mobile drawer; the entry's page supplies the icon, and
-# llms.txt lists it under Site index. Field Manual stays reachable through the
-# landing cards and the sidebar, so Chat is the only entry for now.
-menus:
-  main:
-    - identifier: chat
-      name: Chat
-      pageRef: /chat
-      weight: 30
+# Site header navigation. oink renders .Site.Menus.main (Shell module)
+# in the navbar center zone; the entry's page supplies the icon. With all
+# three books reachable via the bookshelf and sidebars there are no entries
+# — re-add here when a page needs navbar placement.
 
 module:
   imports:
-    - path: github.com/pgsty/oink
+    - path: github.com/rh-aiservices-bu/CAI-Field-Manual-Shell
+      # Pinned to Shell commit 1f1471c74947 on main; bump by editing this hash.
+      # Chrome defaults (logo, offline_search, copyright, footer_center_info,
+      # ui incl. docs_section) live in the Shell module's hugo.yaml and are
+      # deep-merged; site values win on conflict.
+      version: 1f1471c74947
   hugoVersion:
     extended: true
     min: 0.168.0
@@ -205,8 +204,12 @@ module:
     # the aggregator never copies or owns this content. Each manual mounts as
     # its own top-level section ("book"), not nested under a shared parent,
     # so it gets its own URL root and its own sidebar tree.
-    - source: external/manual-hello-world/content/field-manual/hello-world
+    # The hello-world book comes from CAI-Field-Manual-Hello-World (the content
+    # repo that the prototype split into); the --remote refresh tracks its main.
+    - source: external/manual-hello-world/content/hello-world
       target: content/hello-world
+    - source: external/manual-hello-world/static/visualizers
+      target: static/visualizers
     # CAI-Field-Manual-Migration-2-3 already keeps its manual at a top-level
     # section in its own repo, so source and target paths match exactly —
     # mounted as-is, unmodified.
