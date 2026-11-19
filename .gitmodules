@@ -1,7 +1,7 @@
 [submodule "external/manual-maas"]
 	path = external/manual-maas
 	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-MaaS.git
-	branch = migrate-maas-guide
+	branch = main
 [submodule "external/manual-3-migration"]
 	path = external/manual-3-migration
 	url = https://github.com/rh-aiservices-bu/CAI-Field-Manual-Migration-2-3.git

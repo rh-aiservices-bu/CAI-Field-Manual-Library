@@ -26,8 +26,7 @@ bookshelf:
       url: rhoai-2-25-to-3-5/
       icon: fa-solid fa-route
     - title: MaaS
-      subtitle: CAI
-      url: guide/
+      url: maas/
       icon: fa-solid fa-cloud
 
 cards:
@@ -44,9 +43,9 @@ cards:
       icon: fa-solid fa-route
       url: rhoai-2-25-to-3-5/
     - title: MaaS
-      desc: "Deploy Red Hat OpenShift AI Models-as-a-Service — Kustomize manifests with status gates, automation scripts, and reference deep-dives. From the migrate-maas-guide branch of CAI-Field-Manual-MaaS."
+      desc: "MaaS guide: Kustomize manifests with status gates and automation for Models-as-a-Service on OpenShift. From CAI-Field-Manual-MaaS via git submodule."
       icon: fa-solid fa-cloud
-      url: guide/
+      url: maas/
     - title: How to write a manual
       desc: "The six conventions every manual follows and the walkthrough for writing your first one — in the Hello World manual."
       icon: fa-solid fa-pen-ruler
