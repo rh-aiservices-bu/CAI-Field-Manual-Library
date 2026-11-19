@@ -3,30 +3,34 @@ sections: [hero, { key: bookshelf, partial: "landing/sections/bookshelf.html" },
 
 hero:
   align: center
-  eyebrow: field manuals
+  # eyebrow: CAI field manuals
   title_lines:
-    - words: [{ text: The CAI Field Manual. }]
-    - words: [{ text: Where the work happens. }]
-    - words: [{ text: "[red.ht/caifm](https://red.ht/caifm)" }]
-  lead: "The shelf for CAI's field manuals: blank skeleton, RHOAI 2.25 → 3.5 migration, and MaaS — same format, same guarantees, from first command to rollback."
+    - words: [{ text: CAI Field Manuals }]
+    - words: [{ text: "([red.ht/caifm](https://red.ht/caifm))" }]
+  lead: "The shelf for CAI's Field Manuals: An aggregation of all the Field Manuals in a single place."
 
 # Scratch: bookshelf-style nav buttons, one book per field manual. Book width
 # is banded by the manual's top-level heading count (see bookshelf.html);
 # cover color is spaced by index so books look distinct without real
 # randomness.
 bookshelf:
-  eyebrow: Pick one
-  title: Field manuals on the shelf
+  # eyebrow: Pick the one for you!
+  title: All Field Manuals on a single shelf!
   items:
     - title: Hello World
-      subtitle: CAI
+      subtitle: General example
       url: hello-world/
       icon: fa-solid fa-seedling
     - title: Migration 2.25 → 3.5
-      subtitle: CAI
+      # subtitle: Getting from 2 to 3
       url: rhoai-2-25-to-3-5/
       icon: fa-solid fa-route
+    - title: Inference
+      subtitle: (coming soon)
+      url: inference/
+      icon: fa-solid fa-cloud
     - title: MaaS
+      subtitle: Models-as-a-Service
       url: maas/
       icon: fa-solid fa-cloud
 
