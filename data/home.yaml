@@ -7,7 +7,7 @@ hero:
     - words: [{ text: The CAI Field Manual. }]
     - words: [{ text: Where the work happens. }]
     - words: [{ text: "[red.ht/caifm](https://red.ht/caifm)" }]
-  lead: A working skeleton for the field-manual example site — playbooks, procedures, and reference material that survives field conditions.
+  lead: "The shelf for CAI's field manuals: blank skeleton, RHOAI 2.25 → 3.5 migration, and MaaS — same format, same guarantees, from first command to rollback."
 
 # Scratch: bookshelf-style nav buttons, one book per field manual. Book width
 # is banded by the manual's top-level heading count (see bookshelf.html);
