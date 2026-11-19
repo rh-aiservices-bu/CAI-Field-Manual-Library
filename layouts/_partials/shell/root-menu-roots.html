@@ -1,0 +1,50 @@
+{{- /* TODO(Shell): promote to CAI-Field-Manual-Shell.
+     Source: github.com/pgsty/oink@v1.4.0 layouts/_partials/shell/root-menu-roots.html — pinned verbatim, then reordered.
+     Library-only change: explicit shelf order Hello World → RHOAI 2.25 → 3.5 migration → MaaS via site param
+     `params.book_order` instead of ByWeight (front-matter weight cannot be overridden via cascade, so ByWeight would
+     invert the requested order: MaaS(0) → Migration(5) → Hello World(10)). Re-diff against oink source on bumps;
+     delete the reordering (restore plain ByWeight) once Shell ships a param-driven or weight-aligned upstream ordering. */ -}}
+{{- $site := . -}}
+{{- $ordered := $site.Params.book_order | default (slice "hello-world" "rhoai-2-25-to-3-5" "maas") -}}
+{{- $bySection := dict -}}
+{{- range $site.Home.Sections -}}
+  {{- $bySection = merge $bySection (dict .Section .) -}}
+{{- end -}}
+{{- range where $site.Pages "Params.sidebar_root_for" "self" -}}
+  {{- if .IsSection -}}
+    {{- $bySection = merge $bySection (dict .Section .) -}}
+  {{- end -}}
+{{- end -}}
+{{- $entries := slice -}}
+{{- $seen := newScratch -}}
+{{- range $ordered -}}
+  {{- $p := index $bySection . -}}
+  {{- if and $p $p.RelPermalink (not $p.Params.sidebar_divider) (ne $p.Params.sidebar_root_menu false) -}}
+    {{- $key := $p.RelPermalink -}}
+    {{- if not ($seen.Get $key) -}}
+      {{- $entries = $entries | append $p -}}
+      {{- $seen.Set $key true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- /* Append any other roots not in the explicit order, preserving ByWeight
+     within the remainder so future books land at the end. */ -}}
+{{- range $site.Home.Sections.ByWeight -}}
+  {{- if and .RelPermalink (not .Params.sidebar_divider) (ne .Params.sidebar_root_menu false) -}}
+    {{- $key := .RelPermalink -}}
+    {{- if not ($seen.Get $key) -}}
+      {{- $entries = $entries | append . -}}
+      {{- $seen.Set $key true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- range (where $site.Pages "Params.sidebar_root_for" "self").ByWeight -}}
+  {{- if and .IsSection .RelPermalink (not .Params.sidebar_divider) (ne .Params.sidebar_root_menu false) -}}
+    {{- $key := .RelPermalink -}}
+    {{- if not ($seen.Get $key) -}}
+      {{- $entries = $entries | append . -}}
+      {{- $seen.Set $key true -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $entries -}}

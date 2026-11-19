@@ -72,6 +72,12 @@ outputs:
   section: [HTML, RSS, print, markdown]
 
 params:
+  # Shelf/selector order: explicit section order Hello World → RHOAI 2.25 → 3.5 migration → MaaS.
+  # Consumed by the Library override layouts/_partials/shell/root-menu-roots.html (TODO(Shell)):
+  # front-matter weight cannot be overridden via cascade, so ByWeight would invert the order.
+  # Keep in sync with any future books; promote to Shell once upstream ships a param-driven ordering.
+  book_order: [hello-world, rhoai-2-25-to-3-5, maas]
+
   # Red Hat CAI Team lockup (fedora + divider + wordmark); sized for the
   # 4.3:1 aspect in the Shell module's assets/scss/_styles_project.scss. Ink follows the site
   # theme toggle via the SVG's own prefers-color-scheme query.
