@@ -1,18 +1,45 @@
 {{/* TODO(Shell): promote to CAI-Field-Manual-Shell.
-     Source: CAI-Field-Manual-Hello-World @955a86dd (e100db7) layouts/_shortcodes/visualizer.html — verbatim copy.
+     Source: CAI-Field-Manual-Hello-World @41967c46 (HEAD) layouts/_shortcodes/visualizer.html — verbatim copy.
      Kept in Library as a bridge for the hello-world Flow page (external/manual-hello-world → content/hello-world mount);
-     Library shadows Shell's _styles_project.scss and mounts static/visualizers/fm-flow.html to match.
-     Re-diff against that source on Shell bumps; delete here once Shell ships the shortcode + viz SCSS. */ -}}
-{{/* Links a file under static/ with the baseURL subpath applied,
-     or embeds it in-page when embed="true". */ -}}
+     Visualizer chrome is inlined in this shortcode so Library does not need
+     to shadow Shell's assets/scss/_styles_project.scss for viz styles.
+     Re-diff against that source on bumps; delete here once Shell ships the
+     shortcode + viz SCSS. */ -}}
+{{- /* Visualizer embed: frame, expand button, fallback, lightbox, mobile swap, print.
+     Inlined here so this site does not shadow the Shell module's
+     assets/scss/_styles_project.scss (which provides the variant-selector
+     pills, #td-section-nav counters, brand lockup, timeline and image-outline
+     styles; Hugo's union FS resolves that import to the site copy). Flow-bleed
+     stays gated on fm-flow.html as before. */ -}}
+{{ $isFlow := eq (.Get "file") "visualizers/fm-flow.html" -}}
+{{ if eq (.Get "embed") "true" -}}
+<style>
+.td-viz-embed{position:relative;margin:1rem 0;border:1px solid var(--bs-border-color);border-radius:.5rem;overflow:hidden}
+.td-viz-embed iframe{display:block;width:100%;aspect-ratio:5/3;min-height:720px;border:0}
+.td-viz-embed__fallback{display:none}
+.td-viz-embed__expand{position:absolute;top:.5rem;right:.5rem;z-index:10;width:2rem;height:2rem;display:grid;place-items:center;padding:0;border:1px solid var(--bs-border-color);border-radius:.375rem;background:var(--bs-body-bg);color:var(--bs-body-color);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.td-viz-embed__expand::before{content:"⛶";font-size:1rem;line-height:1}
+.td-viz-embed__expand:hover{border-color:var(--bs-primary,var(--bs-border-color))}
+.td-viz-embed--expanded{position:fixed;inset:1rem;z-index:2050;margin:0;border-radius:.75rem;background:var(--bs-body-bg);box-shadow:0 12px 48px rgba(0,0,0,.35)}
+.td-viz-embed--expanded iframe{aspect-ratio:auto;height:100%}
+.td-viz-embed--expanded .td-viz-embed__expand::before{content:"✕"}
+@media(max-width:767.98px){.td-viz-embed iframe,.td-viz-embed__expand{display:none}.td-viz-embed__fallback{display:block}}
+html.td-viz-lock{overflow:hidden}
+@media print{.td-viz-embed{display:none}}
+{{ if $isFlow -}}
+/* Flow diagram: bleed to the article edge only — never under the left TOC/sidebar.
+   The old 50%-calc trick escaped the flex column and painted behind the sidebar. */
+.td-viz-embed--flow:not(.td-viz-embed--expanded){width:100%;max-width:none;margin:0;min-height:640px;aspect-ratio:auto;border:0;box-shadow:none}
+{{ end -}}
+</style>
+{{ end -}}
+
 {{ if eq (.Get "embed") "true" }}
-<div class="td-viz-embed" id="td-viz-embed-{{ .Ordinal }}">
+<div class="td-viz-embed{{ if $isFlow }} td-viz-embed--flow{{ end }}" id="td-viz-embed-{{ .Ordinal }}">
   <button type="button" class="td-viz-embed__expand" aria-label="Expand the visualizer" title="Expand"></button>
   <iframe src="{{ .Get "file" | relURL }}" title="{{ .Get "label" }}" loading="lazy"></iframe>
   <a class="td-viz-embed__fallback" href="{{ .Get "file" | relURL }}" target="_blank" rel="noopener">Open the {{ .Get "label" }} in a new tab</a>
 </div>
-{{/* Expand toggle: fixed-inset lightbox, where the FlowStory engine's
-     (iframeW - 380px) working width makes node labels legible. */ -}}
 <script>
 (function () {
   var embed = document.getElementById('td-viz-embed-{{ .Ordinal }}');

@@ -64,10 +64,11 @@ services:
 outputs:
   home: [HTML, RSS, markdown, LLMS]
   page: [HTML, markdown]
-  # LLMSFULL is enabled per section in front matter: the theme emits it only
-  # for a top-level section and warns for nested ones, so a site-wide section
-  # output trips /field-manual/hello-world/. content/field-manual/_index.md
-  # opts in; the chat page reads that bundle as its whole-manual context.
+  # LLMSFULL is enabled per section in each manual's own _index.md (not
+  # site-wide): the theme emits it only for a top-level section and warns
+  # for nested ones. The Library opts in no section itself — each manual
+  # does (e.g. content/guide/_index.md and
+  # content/rhoai-2-25-to-3-5/_index.md carry outputs: […, LLMSFULL]).
   section: [HTML, RSS, print, markdown]
 
 params:

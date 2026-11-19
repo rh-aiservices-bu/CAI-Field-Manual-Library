@@ -48,11 +48,10 @@ Chrome files live in the Shell repo (pinned to oink v1.4.0). If you propose shel
 
 `layouts/docs/baseof.html`, `layouts/_partials/shell/sidebar-tree.html`, `layouts/_partials/pager-state.html`, `assets/js/action-registry.js`, `assets/js/page-actions.js`, `layouts/_partials/actions/context.html`, `layouts/_partials/actions/title-menu.html`. The Shell also ships a fixup `layouts/_partials/favicons.html`.
 
-Local overrides — the only two in Library (both with `TODO(Shell)` headers, re-diff on module bumps):
+Local override — the only one that shadows Shell (with `TODO(Shell)` header, re-diff on module bumps):
 
 - `layouts/_partials/hooks/head-end.html` — Shell's copy plus the bookshelf `<link>` (the bookshelf is Library-only; a generic landing-section hook in Shell would let this override be deleted).
-- `assets/scss/_styles_project.scss` — Shell's copy plus the viz block for Hello-World's Flow visualizer (`TODO(Shell): move visualizer shortcode + styles to Shell`).
-- `layouts/_shortcodes/visualizer.html` — kept in Library for the mounted hello-world Flow page; Shell has no counterpart yet.
+- `layouts/_shortcodes/visualizer.html` — kept in Library for the mounted hello-world Flow page; visualizer chrome is inlined in the shortcode so Library does not shadow `assets/scss/_styles_project.scss` (Shell owns that file outright). Delete this shortcode once Shell ships its own.
 
 Other Library-unique keeps with no Shell counterpart: `layouts/_partials/landing/sections/bookshelf.html` + `static/css/bookshelf.css` (driven by `data/home.yaml` `sections`/`bookshelf`).
 
