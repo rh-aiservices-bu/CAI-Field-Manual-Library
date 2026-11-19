@@ -65,7 +65,7 @@ jobs:
           extended: true
 
       - name: Install Dart Sass
-        run: npm install -g sass
+        run: npm install -g sass-embedded
 
       - name: Record build tool versions
         run: |
@@ -117,7 +117,7 @@ jobs:
           extended: true
 
       - name: Install Dart Sass
-        run: npm install -g sass
+        run: npm install -g sass-embedded
 
       - name: Record build tool versions
         run: |
