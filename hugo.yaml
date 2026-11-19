@@ -1,5 +1,22 @@
 title: CAI Field Manual
-baseURL: https://rh-aiservices-bu.github.io/CAI-Field-Manual-prototype/
+cascade:
+  # Every branch of the tree renders expanded on every page: both sidebar tree
+  # walkers honor sidebar_expanded as a per-section force-expand, and Home's
+  # cascade sets it for the whole site. Without it the walkers render each
+  # page's tree with only the active path open.
+  - sidebar_expanded: true
+  # Every top-level section (kind: section, path: /*, i.e. one path segment
+  # below Home) becomes its own sidebar root. This is what segregates each
+  # manual's sidebar from the others ("book" behavior) — scoped at the
+  # aggregator so manual repos never need `sidebar_root_for: self` in their
+  # own content. The path glob is one level deep on purpose: a manual with
+  # its own nested sections must not fragment into separate roots.
+  - target:
+      kind: section
+      path: /*
+    sidebar_root_for: self
+
+baseURL: https://rh-aiservices-bu.github.io/CAI-Field-Manual-Library/
 defaultContentLanguage: en
 disableLanguages: [zh, fr]
 enableGitInfo: true
@@ -47,18 +64,19 @@ services:
 outputs:
   home: [HTML, RSS, markdown, LLMS]
   page: [HTML, markdown]
-  # LLMSFULL is enabled per section in front matter: the theme emits it only
-  # for a top-level section and warns for nested ones, so a site-wide section
-  # output trips /field-manual/hello-world/. content/field-manual/_index.md
-  # opts in; the chat page reads that bundle as its whole-manual context.
+  # LLMSFULL is enabled per section in each manual's own _index.md (not
+  # site-wide): the theme emits it only for a top-level section and warns
+  # for nested ones. The Library opts in no section itself — each manual
+  # does (e.g. content/guide/_index.md and
+  # content/rhoai-2-25-to-3-5/_index.md carry outputs: […, LLMSFULL]).
   section: [HTML, RSS, print, markdown]
 
 params:
   # Red Hat CAI Team lockup (fedora + divider + wordmark); sized for the
-  # 4.3:1 aspect in assets/scss/_styles_project.scss. Ink follows the site
+  # 4.3:1 aspect in the Shell module's assets/scss/_styles_project.scss. Ink follows the site
   # theme toggle via the SVG's own prefers-color-scheme query.
   logo: icons/logo-rh-cai.svg
-  github_repo: https://github.com/rh-aiservices-bu/CAI-Field-Manual-prototype
+  github_repo: https://github.com/rh-aiservices-bu/CAI-Field-Manual-Library
   github_branch: main
   offline_search: true
   copyright:
@@ -69,20 +87,20 @@ params:
     preset: paper
     preset_menu: [paper, slate, ink, terminal]
     # Wordmark follows each preset's UI face (var(--td-ui-font-family))
-    # via the :root override in assets/scss/_styles_project.scss, so a
+    # via the :root override in the Shell module's assets/scss/_styles_project.scss, so a
     # Slate/Ink/Terminal reader never sees a foreign face in the brand row.
     dark_mode: true
     section_index: cards
     blog_index: cards
     sidebar_menu_foldable: true
-    # Multi-book demo: content/_index.md's cascade sets `sidebar_root_for:
-    # self` on every top-level section (scoped via _target so it doesn't
-    # reach into a manual's own nested sections), so each manual's sidebar is
-    # scoped to itself and never shows another manual -- no manual repo needs
-    # this front matter itself. docs_sidebar_root stays at the theme default
-    # ("section") and sidebar_root_menu is on, so the root switcher groups
-    # every book as a dedicated top-level picker, without nesting their URLs
-    # under a shared parent.
+    # `hugo.yaml`'s top-level `cascade:` sets `sidebar_root_for: self` on
+    # every top-level section (scoped via `target: {kind: section, path: /*}`
+    # so it doesn't reach into a manual's own nested sections), so each
+    # manual's sidebar is scoped to itself and never shows another manual --
+    # no manual repo needs this front matter itself. `docs_sidebar_root`
+    # stays at the theme default ("section") and `sidebar_root_menu` is on,
+    # so the root switcher groups every book as a dedicated top-level
+    # picker, without nesting their URLs under a shared parent.
     sidebar_root_menu: true
     # Numbered workshop-chrome nav (B): CSS counters give the top level "N."
     # and its children "N.M", so icon rows are gone from the tree --
@@ -170,27 +188,29 @@ params:
     - { id: user, label: Your name, default: guest }
     - { id: cluster, label: Cluster, default: .ocp.abcd.sandbox1234.opentlc.com }
 
-# Site header navigation. oink renders .Site.Menus.main in the navbar center
-# zone and the home mobile drawer; the entry's page supplies the icon, and
-# llms.txt lists it under Site index. Field Manual stays reachable through the
-# landing cards and the sidebar, so Chat is the only entry for now.
-menus:
-  main:
-    - identifier: chat
-      name: Chat
-      pageRef: /chat
-      weight: 30
+# Site header navigation. oink renders .Site.Menus.main (Shell module)
+# in the navbar center zone; the entry's page supplies the icon. With all
+# three books reachable via the bookshelf and sidebars there are no entries
+# — re-add here when a page needs navbar placement.
 
 module:
   imports:
-    - path: github.com/pgsty/oink
+    - path: github.com/rh-aiservices-bu/CAI-Field-Manual-Shell
+      # Pinned to Shell commit 1f1471c74947 on main; bump by editing this hash.
+      # Chrome defaults (logo, offline_search, copyright, footer_center_info,
+      # ui incl. docs_section) live in the Shell module's hugo.yaml and are
+      # deep-merged; site values win on conflict.
+      version: 1f1471c74947
   hugoVersion:
     extended: true
     min: 0.168.0
   mounts:
-    # Standard defaults — required once any mounts are declared explicitly.
-    - source: content
-      target: content
+    # Standard defaults — required once any explicit mounts are declared.
+    # `content` is intentionally not mounted: the aggregator owns no content
+    # (hugo.yaml's top-level `cascade:` replaces the old content/_index.md
+    # book-segregation lever); every page comes from a submodule mount below.
+    # `archetypes` is also unused — manual repos carry their own — so it is
+    # omitted alongside `content`.
     - source: static
       target: static
     - source: layouts
@@ -199,18 +219,24 @@ module:
       target: data
     - source: assets
       target: assets
-    - source: archetypes
-      target: archetypes
     # Pull each manual repo's own content straight from its git submodule —
     # the aggregator never copies or owns this content. Each manual mounts as
     # its own top-level section ("book"), not nested under a shared parent,
     # so it gets its own URL root and its own sidebar tree.
-    - source: external/manual-hello-world/content/field-manual/hello-world
+    # The hello-world book comes from CAI-Field-Manual-Hello-World (the content
+    # repo that the prototype split into); the --remote refresh tracks its main.
+    - source: external/manual-hello-world/content/hello-world
       target: content/hello-world
+    - source: external/manual-hello-world/static/visualizers
+      target: static/visualizers
     # CAI-Field-Manual-Migration-2-3 already keeps its manual at a top-level
     # section in its own repo, so source and target paths match exactly —
     # mounted as-is, unmodified.
     - source: external/manual-3-migration/content/rhoai-2-25-to-3-5
       target: content/rhoai-2-25-to-3-5
-    - source: external/manual-maas/content/field-manual/hello-world
-      target: content/manual-maas
+    - source: external/manual-maas/content/guide
+      target: content/guide
+    - source: external/manual-maas/static/visualizers
+      target: static/visualizers
+    - source: external/manual-maas/assets/images
+      target: assets/images
