@@ -1,4 +1,5 @@
-sections: [hero, { key: bookshelf, partial: "landing/sections/bookshelf.html" }, timeline, cards, faq, cta]
+# sections: [hero, { key: bookshelf, partial: "landing/sections/bookshelf.html" }, timeline, cards, faq, cta]
+sections: [hero, { key: bookshelf, partial: "landing/sections/bookshelf.html" }, cta]
 
 hero:
   align: center
