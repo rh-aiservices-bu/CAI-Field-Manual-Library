@@ -66,7 +66,7 @@ For testing unpushed Shell work, use a `hugo.work` workspace replacement (see RE
 
 ## Updating the manuals
 
-Pins move automatically via the hourly `refresh-submodules.yaml` workflow. To pin manually:
+Pins move automatically via the hourly [`hourly-publish.yaml`](.github/workflows/hourly-publish.yaml) workflow, which refreshes the pins, gates the aggregated build, and only then commits the pins and deploys; a failing gate leaves main and the live site untouched and emails the workflow creator. If a deploy ever fails after pins were pushed, re-run via `gh workflow run hourly-publish.yaml`. To pin manually:
 
 ```sh
 git submodule update --remote external/manual-hello-world

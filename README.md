@@ -56,7 +56,7 @@ With a path in `baseURL` (`https://rh-aiservices-bu.github.io/CAI-Field-Manual-L
 
 ### Updating the manuals
 
-Manual pins move automatically via the hourly [`refresh-submodules.yaml`](.github/workflows/refresh-submodules.yaml) workflow. To pin manually:
+Manual pins move automatically via the hourly [`hourly-publish.yaml`](.github/workflows/hourly-publish.yaml) workflow, which refreshes the pins, gates the aggregated build, and only then commits the pins and deploys; a failing gate leaves main and the live site untouched and emails the workflow creator. If a deploy ever fails after pins were pushed, re-run via `gh workflow run hourly-publish.yaml` (dispatch gates and deploys even without pin changes). To pin manually:
 
 ```sh
 git submodule update --remote external/manual-hello-world  # or manual-3-migration, manual-maas
