@@ -36,6 +36,8 @@ Working list of pending work for this repo. New items go at the bottom of their 
 
 ## Done
 
+| # | Item | Completed | Notes |
+|---|------|-----------|-------|
 | 1 | Repo review via three scout sub-agents (layouts provenance vs oink@v1.4.0 + Shell@1f1471c74947; submodule pins/variant axes; CI workflows vs README/AGENTS claims) + direct reads; findings logged as Now 1-11, Next 1-6 | 2026-11-19 | layout pins verified clean (no extra divergence); pins, mounts, token contracts, gitignore coverage verified accurate |
-| 5 | refresh-submodules.yaml pushes pin bumps that never redeploy + never gate: bot push with GITHUB_TOKEN does not trigger github-pages.yaml (GitHub anti-recursion; no PAT in workflow) despite header comment claiming it does (refresh-submodules.yaml:3-6); and no publication gate runs before bumping, so a broken manual commit on origin/main lands as a pin unverified | 2026-11-20 | fixed by hourly-publish.yaml (hourly-publish-pipeline branch; live on merge) — gate runs before any pin lands; anti-recursion moot because the hourly run deploys its own build; refresh-submodules.yaml deleted |
+| 2 | refresh-submodules.yaml pushes pin bumps that never redeploy + never gate: bot push with GITHUB_TOKEN does not trigger github-pages.yaml (GitHub anti-recursion; no PAT in workflow) despite header comment claiming it does (refresh-submodules.yaml:3-6); and no publication gate runs before bumping, so a broken manual commit on origin/main lands as a pin unverified | 2026-11-20 | fixed by hourly-publish.yaml (hourly-publish-pipeline branch; live on merge) — gate runs before any pin lands; anti-recursion moot because the hourly run deploys its own build; refresh-submodules.yaml deleted |
 | | | | |
