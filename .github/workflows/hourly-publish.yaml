@@ -1,0 +1,154 @@
+name: Hourly publish
+
+# Hourly pipeline: if any manual submodule (the books under external/) has new
+# commits on its default branch, rebuild the aggregated site from all the
+# latest pins, run the publication gate, and only then commit the new pins to
+# main and deploy to GitHub Pages.
+#
+# Replaces refresh-submodules.yaml, whose GITHUB_TOKEN push never triggered
+# github-pages.yaml (GitHub anti-recursion) and whose pin commits landed
+# without a gate. Here the gate runs BEFORE any pin lands: gate failure fails
+# this run (failure email goes to the workflow creator), main stays on
+# last-good pins, the site keeps serving the last good build.
+# workflow_dispatch is the manual lever: full gate + deploy even with no pin
+# changes (use it to re-publish after a failed deploy).
+
+on:
+  schedule:
+    - cron: "23 * * * *" # hourly, off the :00 runner-queue crunch
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # commit + push refreshed submodule pins
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages # shared with github-pages.yaml so deploys serialize
+  cancel-in-progress: false
+
+env:
+  GO_VERSION: 1.27.3
+  HUGO_VERSION: "0.168.0"
+  GOWORK: off
+  HUGO_MODULE_WORKSPACE: off
+  HUGO_CACHEDIR: ${{ github.workspace }}/.hugo_cache
+
+jobs:
+  hourly:
+    name: Detect pin changes, gate, commit pins
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.publish-pins.outputs.published }}
+    steps:
+      - name: Check out aggregator with manual submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Detect submodule changes
+        id: pins
+        run: |
+          git submodule update --remote --merge
+          if git diff --quiet -- external; then
+            echo "No manual repo has new commits."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git diff --stat -- external
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out shell module (layouts/assets/scripts)
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v7
+        with:
+          repository: rh-aiservices-bu/CAI-Field-Manual-Shell
+          # Keep in sync with hugo.yaml module.imports[].version. fetch-depth 0
+          # lets the short SHA resolve.
+          ref: 1f1471c74947
+          path: shell
+          fetch-depth: 0
+
+      - name: Set up Go
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          check-latest: true
+          cache-dependency-path: go.sum
+
+      - name: Configure GitHub Pages
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        id: pages
+        uses: actions/configure-pages@v6
+        with:
+          enablement: true
+
+      - name: Install Hugo Extended
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Install Dart Sass
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: npm install -g sass-embedded
+
+      - name: Record build tool versions
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          go version
+          hugo version
+          sass --version
+
+      - name: Download OINK
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: go mod download
+
+      # Same gate as PRs, push builds, and the AGENTS.md gate: fail on build
+      # errors or any WARN besides the known oink libsass deprecation.
+      - name: Publication gate (build Pages artifact)
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: shell/scripts/publication-gate.sh --baseURL "${{ steps.pages.outputs.base_url }}/"
+
+      # Runs only after the gate passed. On schedule: publish pins only if main
+      # didn't move while building. On dispatch: always deploys; commits pins
+      # only if there are any.
+      - name: Publish refreshed pins
+        id: publish-pins
+        if: steps.pins.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD)" ]; then
+            echo "main moved while building; skipping publish (retried next hour)"
+            exit 0
+          fi
+          if ! git diff --quiet -- external; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add external
+            git commit -m "chore: refresh manual submodules to latest"
+            git push
+          fi
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Pages artifact
+        if: steps.publish-pins.outputs.published == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    name: Deploy
+    needs: hourly
+    if: needs.hourly.outputs.published == 'true'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v5

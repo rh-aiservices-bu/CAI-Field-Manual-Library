@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages
 
 # Builds the aggregator (chassis + all manual submodules at their currently
-# pinned commits) and deploys to GitHub Pages. Runs on every push to main
-# (including the commits refresh-submodules.yaml makes when a manual updates),
-# on PRs as a publication gate, and on demand.
+# pinned commits) and deploys to GitHub Pages. Runs on every push to main, on
+# PRs as a publication gate, and on demand. Hourly pin refreshes are built,
+# gated, and deployed by hourly-publish.yaml instead — a bot push with
+# GITHUB_TOKEN does not trigger this workflow (GitHub anti-recursion).
 
 on:
   pull_request:
